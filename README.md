@@ -8,7 +8,7 @@ The library uses a convention-based template resolution mechanism which automati
 
 The resolution algorithm uses the `Type.FullName` to search for a template on disk. It start's with the most qualified name and descends down to the unqualified name. For example, take a `Person` class declared in the following namespace:
 
-```
+```csharp
 namespace Some.Test
 {
     public class Person {
@@ -25,7 +25,7 @@ _Note: the `.liquid` extension is hard-coded and cannot be changed. Templates **
 ## Ad-hoc Templates
 
 Given a simple class (or record) you can pretty-print it using an ad-hoc liquid template with minimal code:
-```
+```csharp
 const string template = "Hello {{What}}";
 var liquefier = new Liquefier();
 var helloWorld = liquefier.Liquefy(new { What = "World" }, template);
@@ -35,7 +35,7 @@ Which yields `Hello World` in the Console output.
 
 The following unit test asserts the correctness of a more complex liquid template.
 
-```
+```csharp
 const string personTemplate =
     """
     Name: {{ Name }}
