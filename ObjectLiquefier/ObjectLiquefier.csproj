@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>10.0</LangVersion>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Object Liquefier</Title>
+    <Authors>felipemachado</Authors>
+    <Description>A tiny library for pretty-printing objects using Liquid templates.</Description>
+    <PackageTags>liquid;fluid;serialization;prettyprinting;pretty-printing</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fluid.Core" Version="2.3.1" />
+    <PackageReference Include="SpookilySharp" Version="1.2.0" />
+  </ItemGroup>
+
+</Project>
