@@ -51,7 +51,7 @@ const string felipeLiquefied =
 [Fact]
 public void LiquefyCanAcceptAdHocTemplate() {
     var liquefier = new Liquefier();
-    var liquefied = liquefier.Liquefy(Felipe, personTemplate);
+    var liquefied = liquefier.Liquefy(new { Name = "Felipe", Birth = new DateTime(1976, 03, 31) }, personTemplate);
     Assert.Equal(felipeLiquefied, liquefied);
 }
 ```
