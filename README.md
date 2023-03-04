@@ -2,6 +2,15 @@
 
 A (very) tiny library to help pretty-printing dotnet objects (for logging, auditing, visualization, etc. purposes). It uses Liquid templates powered by the nice [Fluid](https://github.com/sebastienros/fluid) library. 
 
+## Installing
+
+The fastest and simplest way to start using the library is from it's [nuget package](https://www.nuget.org/packages/ObjectLiquefier).
+```powershell
+NuGet\Install-Package ObjectLiquefier -Version 0.0.1
+```
+
+It targets .NET Standard 2.1 which makes it compatible with all modern (and some legacy) dotnet projects.
+
 ## Strongly-typed Templates
 
 The library uses a convention-based template resolution mechanism which automatically resolves templates on disk based on an object's type name. When a suitable template is found it is read from disk, compiled and the compiled template is cached using the object's type name as the cache key.
