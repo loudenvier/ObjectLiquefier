@@ -22,6 +22,66 @@ The `TemplateResolver` will search for a file named `some.test.person.liquid`, t
 
 _Note: the `.liquid` extension is hard-coded and cannot be changed. Templates **MUST** have this extension._
 
+### Usage 
+
+Liquid templates should be put inside a subfolder, under the current dir, named `liquefier` (can be configured). Considering the template bellow in the file  `.\liquefier\person.liquid`:
+
+```liquid
+<html>
+<body>
+	<h1>{{ Name }}</h1>
+	<p><em>Birth:</em> {{ Birth | date: "%d/%m/%Y" }}
+	<hr>
+	<p>{{ Bio }}</p>
+</body>
+</html>
+```
+
+You can _liquefy_ classes named `Person`, as shown in the follwing code:
+
+```csharp
+public class Person {
+    public string Name { get; set; } = "";
+    public DateTime Birth { get; set; }
+    public string? Bio { get; set; }
+    public int Age => (int)((DateTime.Today - Birth).TotalDays / 365.2425);
+}
+
+var liquefier = new Liquefier();
+var liquefied = liquefier.Liquefy(new Person {
+    Name = "Felipe Machado",
+    Birth = new DateTime(1976, 03, 31),
+    Bio = "Felipe was born in Volta Redonda, Rio de Janeiro, Brazil."
+});
+Console.WriteLine(liquefied);
+```
+
+Which will output this to the `Console`:
+
+```html
+<html>
+<body>
+	<h1>Felipe Machado</h1>
+	<p><em>Birth:</em> 31/03/1976
+	<hr>
+	<p>Felipe was born in Volta Redonda, Rio de Janeiro, Brazil.</p>
+</body>
+</html>
+```
+
+### Configuration Options
+
+You can configure some options of the object liquefier in it's constructor:
+
+```csharp
+var liquefier = new Liquefier(cfg => {
+    cfg.TemplateFolder = "data\\templates";
+    cfg.ParserOptions = new Fluid.FluidParserOptions { AllowFunctions = false };
+    cfg.TemplateOptions.MaxSteps = 567;
+    cfg.TemplateOptions.MaxRecursion = 2;
+});
+```
+
 ## Ad-hoc Templates
 
 Given a simple class (or record) you can pretty-print it using an ad-hoc liquid template with minimal code:
@@ -58,8 +118,8 @@ public void LiquefyCanAcceptAdHocTemplate() {
 
 ### Ad-hoc template caching
 
-Like strongly-typed templates, ad-hoc templates are compiled at first use and the compiled template is cached by its 128-bit cache key.
+Like strongly-typed templates, ad-hoc templates are compiled at first use and the compiled template is cached by a 128-bit cache key.
 
-To genate the 128-bit cache key the library uses Jon Hanna's donet implementation ([Spookily Sharp](https://github.com/JonHanna/SpookilySharp/)) of [Bob Jenkins’ SpookyHash version 2](http://burtleburtle.net/bob/hash/spooky.html). While collisions are _possible_ they are very improbable so the library does nothing at all to prevent it as 1 in 16 quintillion chances is low enough for me.
+To generate the 128-bit cache key the library uses Jon Hanna's donet implementation ([Spookily Sharp](https://github.com/JonHanna/SpookilySharp/)) of [Bob Jenkins’ SpookyHash version 2](http://burtleburtle.net/bob/hash/spooky.html). While collisions are _possible_ they are very improbable so the library does nothing at all to prevent it as 1 in 16 quintillion chances is low enough for me.
 
 
