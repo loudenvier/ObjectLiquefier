@@ -1,7 +1,11 @@
-﻿public class TestLiquefier {
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using ObjectLiquefier;
+
+public class TestLiquefier {
     public class Person {
         public string Name { get; set; } = "";
         public DateTime Birth { get; set; }
+        public string? Bio { get; set; }
         public int Age => (int)((DateTime.Today - Birth).TotalDays / 365.2425); 
     }
     public record PersonRec(string Name, DateTime Birth) {
@@ -26,12 +30,21 @@
         var liquefier = new Liquefier();
         Assert.NotNull(liquefier.Settings);
     }
+
+    [Fact]
+    public void CanInstantiateWithDefaultConfigButItsNotTheSame() {
+        // if it was the same then a change in an instance settings would affect the default's
+        var liquefier = new Liquefier();
+        Assert.NotSame(Liquefier.DefaultSettings(), liquefier.Settings);
+    }
+
     [Fact]
     public void CanConfigureLiquefierSettings() {
         var liquefier = new Liquefier(cfg => {
             cfg.TemplateFolder = "test";
-            cfg.ParserOptions = new Fluid.FluidParserOptions { AllowFunctions = false };
+            cfg.ParserOptions.AllowFunctions = false; // = new Fluid.FluidParserOptions { AllowFunctions = false };
             cfg.TemplateOptions.MaxSteps = 567;
+            cfg.TemplateOptions.MaxRecursion = 2;
         });
         Assert.Equal("test", liquefier.Settings.TemplateFolder);   
         Assert.False(liquefier.Settings.ParserOptions.AllowFunctions);
@@ -109,8 +122,8 @@
     public void LiquefyCachesTemplateFromDisk() {
         var liquefier = new Liquefier();
         Directory.CreateDirectory(liquefier.Settings.TemplateFolder);
-        File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "testliquefier+person.liquid"), personTemplate);
         try {
+            File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "testliquefier+person.liquid"), personTemplate);
             var liquefied = liquefier.Liquefy(Felipe);
             Assert.Equal(felipeLiquefied, liquefied);
             Directory.Delete(liquefier.Settings.TemplateFolder, true);
@@ -122,5 +135,40 @@
                 Directory.Delete(liquefier.Settings.TemplateFolder, true);
         }
     }
+
+    [Fact]
+    public void LiquefyObjectUsesDefaultSettings() {
+        const string otherFolder = "other_folder";
+        Liquefier.DefaultSettings = () => new Liquefier.LiquefierSettings {
+            TemplateFolder = otherFolder,
+        };
+        Directory.CreateDirectory(otherFolder);
+        try {
+            File.WriteAllText(Path.Combine(otherFolder, "testliquefier+person.liquid"), personTemplate);
+            var liquefied = Liquefier.LiquefyObject(Felipe);
+            Assert.Equal(felipeLiquefied, liquefied);
+        } finally {
+            Directory.Delete(otherFolder, true);
+        }
+    }
+
+    [Fact]
+    public void LiquefyObjectCachesTemplateFromDisk() {
+        var folder = Liquefier.Instance.Settings.TemplateFolder;
+        Directory.CreateDirectory(folder);
+        try {
+            File.WriteAllText(Path.Combine(folder, "testliquefier+person.liquid"), personTemplate);
+            var liquefied = Liquefier.LiquefyObject(Felipe);
+            Assert.Equal(felipeLiquefied, liquefied);
+            Directory.Delete(folder, true);
+            // since template dir is deleted, the compiled template must come from the cache
+            var liquefiedByCachedTemplate = Liquefier.LiquefyObject(Felipe);
+            Assert.Equal(liquefied, liquefiedByCachedTemplate);
+        } finally {
+            if (Directory.Exists(folder))
+                Directory.Delete(folder, true);
+        }
+    }
+
 
 }

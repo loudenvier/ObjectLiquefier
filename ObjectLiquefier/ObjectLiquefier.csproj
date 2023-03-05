@@ -4,12 +4,23 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>10.0</LangVersion>
+    <VersionPrefix>0.1.1</VersionPrefix>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Object Liquefier</Title>
     <Authors>felipemachado</Authors>
     <Description>A tiny library for pretty-printing objects using Liquid templates.</Description>
     <PackageTags>liquid;fluid;serialization;prettyprinting;pretty-printing</PackageTags>
+    <RepositoryUrl>https://github.com/loudenvier/ObjectLiquefier</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Fluid.Core" Version="2.3.1" />
