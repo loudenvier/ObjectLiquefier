@@ -11,7 +11,7 @@ NuGet\Install-Package ObjectLiquefier -Version 0.0.1
 
 It targets .NET Standard 2.1 which makes it compatible with all modern (and some legacy) dotnet projects.
 
-## Strongly-typed Templates
+## "Strongly"-typed Templates
 
 The library uses a convention-based template resolution mechanism which automatically resolves templates on disk based on an object's type name. When a suitable template is found it is read from disk, compiled and the compiled template is cached using the object's type name as the cache key.
 
@@ -31,7 +31,39 @@ The `TemplateResolver` will search for a file named `some.test.person.liquid`, t
 
 _Note: the `.liquid` extension is hard-coded and cannot be changed. Templates **MUST** have this extension._
 
-### Usage 
+### Type name collisions
+
+Templates are not actually strongly-typed since the engine does not care about assembly version, strong names, etc. Only the Type's Full Name is used for template resolution. Since the resolution mechanics do search for fully, partially and unqualified names, two classes with the same name can share the same template. For example:
+
+```csharp
+namespace Test.One {
+    public record Person(string Name);
+}
+```
+```csharp
+namespace Test.Two {
+    public class Person {
+    	public string FirstName { get; set; }
+	public string LastName { get; set; }
+	public string Name => $"{LastName}, {FirstName}";
+    }
+}
+```    
+
+Both classes would share a template named `person.liquid`. If you need different templates for them you should qualify the template name further. For instance, a template named `two.person.liquid` would only satisfy the second `Person` class above.
+
+_NOTE: while the `class` and `record` above could end using the same template, the compiled template will be cached under different keys regardless as it uses the Type's full name as the cache key. This will result in a separate template compilation for each `Type` even though the template file is the same._
+
+## Usage 
+
+The easiest way to _liquefy_ an object is to use `Liquefier.LiquefyObject` static method which uses the default settings and a singleton `Liquefier` instance for template compilation, caching, resolution, etc.:
+
+```csharp
+var felipe = new Person { Name = "Felipe Machado", };
+var liquefied = Liquefier.LiquefyObject(Felipe);
+
+```
+This will _liquefy_ the instance of the `Person` class above using a suitable liquid template (or raise a `LiquidTemplateNotFoundException` if none is available). It will cache the compiled template, so subsequent calls with instances of the same class will 
 
 Liquid templates should be put inside a subfolder, under the current dir, named `liquefier` (can be configured). Considering the template bellow in the file  `.\liquefier\person.liquid`:
 
@@ -56,8 +88,7 @@ public class Person {
     public int Age => (int)((DateTime.Today - Birth).TotalDays / 365.2425);
 }
 
-var liquefier = new Liquefier();
-var liquefied = liquefier.Liquefy(new Person {
+var liquefied = Liquefier.LiquefyObject(new Person {
     Name = "Felipe Machado",
     Birth = new DateTime(1976, 03, 31),
     Bio = "Felipe was born in Volta Redonda, Rio de Janeiro, Brazil."
@@ -78,9 +109,23 @@ Which will output this to the `Console`:
 </html>
 ```
 
-### Configuration Options
+### Default Settings
 
-You can configure some options of the object liquefier in it's constructor:
+You can change the library's default settings by assigning a new `Func<LiquefierSettings>` to `Liquefier.DefaultSettings`:
+
+```csharp
+Liquefier.DefaultSettings = () => new Liquefier.LiquefierSettings {
+    TemplateFolder = "another\\folder",
+    // new liquefier instances will use "./another/folder" as the liquid source template directory
+};
+
+```
+
+New `Liquefier` instances will automatically use the new default settings. The default liquefier instance used by `Liquefier.LiquefyObject()` will also use the new defaults if it was **NEVER** used prior to changing the settings (e.g.: you didn't call `Liquefier.LiquefyObject()` nor read the `Liquefier.Instance` property, as both would have instantiated the default `Liquefier` before the change).
+
+#### Instance Settings
+
+If you want to use a liquefier with custom settings without changing the defaults, you can configure the settings by passing an `Action<LiquefierSettings>` in it's constructor:
 
 ```csharp
 var liquefier = new Liquefier(cfg => {
@@ -90,6 +135,8 @@ var liquefier = new Liquefier(cfg => {
     cfg.TemplateOptions.MaxRecursion = 2;
 });
 ```
+
+The `LiquefierSettings` passed onto the configuration `Action` will reflect the current default settings, so you can change only what is needed.
 
 ## Ad-hoc Templates
 
