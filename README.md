@@ -63,7 +63,8 @@ var felipe = new Person { Name = "Felipe Machado", };
 var liquefied = Liquefier.LiquefyObject(Felipe);
 
 ```
-This will _liquefy_ the instance of the `Person` class above using a suitable liquid template (or raise a `LiquidTemplateNotFoundException` if none is available). It will cache the compiled template, so subsequent calls with instances of the same class will 
+
+This will _liquefy_ the instance of the `Person` class above using a suitable liquid template (or raise a `LiquidTemplateNotFoundException` if none is available). It will cache the compiled template, so subsequent calls with instances of the same class will get an already compiled liquid template from the cache. 
 
 Liquid templates should be put inside a subfolder, under the current dir, named `liquefier` (can be configured). Considering the template bellow in the file  `.\liquefier\person.liquid`:
 
@@ -143,8 +144,7 @@ The `LiquefierSettings` passed onto the configuration `Action` will reflect the 
 Given a simple class (or record) you can pretty-print it using an ad-hoc liquid template with minimal code:
 ```csharp
 const string template = "Hello {{What}}";
-var liquefier = new Liquefier();
-var helloWorld = liquefier.Liquefy(new { What = "World" }, template);
+var helloWorld = Liquefier.LiquefyObject(new { What = "World" }, template);
 Console.WriteLine(helloWorld);
 ```
 Which yields `Hello World` in the Console output.
