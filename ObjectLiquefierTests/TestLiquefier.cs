@@ -75,7 +75,7 @@ public class TestLiquefier {
     public void LiquefyPersonResolvesTemplateOnDisk() {
         var liquefier = new Liquefier();
         Directory.CreateDirectory(liquefier.Settings.TemplateFolder);
-        File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "testliquefier+person.liquid"), personTemplate);
+        File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "person.liquid"), personTemplate);
         try {
             var liquefied = liquefier.Liquefy(Felipe);
             Assert.Equal(felipeLiquefied, liquefied);
@@ -87,7 +87,7 @@ public class TestLiquefier {
     public void LiquefyPersonAdHocDoesNotOverwriteTemplateOnDisk() {
         var liquefier = new Liquefier();
         Directory.CreateDirectory(liquefier.Settings.TemplateFolder);
-        File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "testliquefier+person.liquid"), personTemplate+"disk");
+        File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "person.liquid"), personTemplate+"disk");
         try {
             var liquefied = liquefier.Liquefy(Felipe, personTemplate);
             Assert.Equal(felipeLiquefied, liquefied);
@@ -101,7 +101,7 @@ public class TestLiquefier {
     public void LiquefyPersonWithDiskTemplateStillAllowsAdHocTemplates() {
         var liquefier = new Liquefier();
         Directory.CreateDirectory(liquefier.Settings.TemplateFolder);
-        File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "testliquefier+person.liquid"), personTemplate + "disk");
+        File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "person.liquid"), personTemplate + "disk");
         try {
             var liquefied = liquefier.Liquefy(Felipe);
             Assert.Equal(felipeLiquefied + "disk", liquefied);
@@ -123,7 +123,7 @@ public class TestLiquefier {
         var liquefier = new Liquefier();
         Directory.CreateDirectory(liquefier.Settings.TemplateFolder);
         try {
-            File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "testliquefier+person.liquid"), personTemplate);
+            File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "person.liquid"), personTemplate);
             var liquefied = liquefier.Liquefy(Felipe);
             Assert.Equal(felipeLiquefied, liquefied);
             Directory.Delete(liquefier.Settings.TemplateFolder, true);
@@ -139,12 +139,12 @@ public class TestLiquefier {
     [Fact]
     public void LiquefyObjectUsesDefaultSettings() {
         const string otherFolder = "other_folder";
-        Liquefier.DefaultSettings = () => new Liquefier.LiquefierSettings {
+        Liquefier.DefaultSettings = () => new LiquefierSettings {
             TemplateFolder = otherFolder,
         };
         Directory.CreateDirectory(otherFolder);
         try {
-            File.WriteAllText(Path.Combine(otherFolder, "testliquefier+person.liquid"), personTemplate);
+            File.WriteAllText(Path.Combine(otherFolder, "person.liquid"), personTemplate);
             var liquefied = Liquefier.LiquefyObject(Felipe);
             Assert.Equal(felipeLiquefied, liquefied);
         } finally {
@@ -157,7 +157,7 @@ public class TestLiquefier {
         var folder = Liquefier.Instance.Settings.TemplateFolder;
         Directory.CreateDirectory(folder);
         try {
-            File.WriteAllText(Path.Combine(folder, "testliquefier+person.liquid"), personTemplate);
+            File.WriteAllText(Path.Combine(folder, "person.liquid"), personTemplate);
             var liquefied = Liquefier.LiquefyObject(Felipe);
             Assert.Equal(felipeLiquefied, liquefied);
             Directory.Delete(folder, true);

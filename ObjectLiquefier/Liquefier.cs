@@ -5,7 +5,7 @@ using System.IO;
 
 namespace ObjectLiquefier
 {
-    public class Liquefier
+    public partial class Liquefier
     {
         private readonly TemplateCache cache = new();
         private readonly FluidParser parser;
@@ -13,12 +13,12 @@ namespace ObjectLiquefier
         public static Func<LiquefierSettings> DefaultSettings { get; set; } = () => new LiquefierSettings();
 
         private readonly static Lazy<Liquefier> instance = new(() => new Liquefier());
-        public static Liquefier Instance => instance.Value; 
+        public static Liquefier Instance => instance.Value;
 
-        public Liquefier(Action<LiquefierSettings>? configAction=null) {
-            Settings = DefaultSettings?.Invoke() ?? new LiquefierSettings();
+        public Liquefier(Action<LiquefierSettings>? configAction = null) {
+            Settings = DefaultSettings?.Invoke() ?? new();
             configAction?.Invoke(Settings);
-            parser = new FluidParser(Settings.ParserOptions);
+            parser = new(Settings.ParserOptions);
         }
 
         public LiquefierSettings Settings { get; }
@@ -45,13 +45,6 @@ namespace ObjectLiquefier
                 cache[key] = parsedTemplate = parser.Parse(template);
             }
             return parsedTemplate;
-        }
-
-        public sealed class LiquefierSettings
-        {
-            public FluidParserOptions ParserOptions { get; } = new();
-            public TemplateOptions TemplateOptions { get; } = new();
-            public string TemplateFolder { get; set; } = "liquefier";
         }
 
     }

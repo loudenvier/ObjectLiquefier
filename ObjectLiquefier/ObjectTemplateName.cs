@@ -13,7 +13,7 @@ namespace ObjectLiquefier
             NameParts = ParseNameParts();
             PossibleNames = ResolvePossibleNames();
         }
-        private string[] ParseNameParts() => TypeName.Split('.');
+        private string[] ParseNameParts() => TypeName.Split('.', '+');
 
         private string[] ResolvePossibleNames() => NameParts.Select((_, i) 
             => $"{string.Join('.', NameParts.Skip(i))}{TemplateResolver.DefaultExtension}").ToArray();

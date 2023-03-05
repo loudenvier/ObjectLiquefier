@@ -35,4 +35,25 @@ public class TestObjectTemplateName
         var templateName = new ObjectTemplateName(type);
         Assert.Equal(templateName.NameParts.Length, templateName.PossibleNames.Length);
     }
+
+    public class Nested
+    {
+        public string? Dummy { get; set; }
+        public class Nested2 { }
+    }
+
+    [Fact]
+    public void PossibleNamesConsidersNestedClassesToo() {
+        var templateName = new ObjectTemplateName(typeof(Nested));
+        Assert.Equal("testobjecttemplatename.nested.liquid", templateName.PossibleNames[0]);
+        Assert.Equal("nested.liquid", templateName.PossibleNames[1]);
+    }
+    [Fact]
+    public void PossibleNamesConsidersMultipleNestedClassesToo() {
+        var templateName = new ObjectTemplateName(typeof(Nested.Nested2));
+        Assert.Equal("testobjecttemplatename.nested.nested2.liquid", templateName.PossibleNames[0]);
+        Assert.Equal("nested.nested2.liquid", templateName.PossibleNames[1]);
+        Assert.Equal("nested2.liquid", templateName.PossibleNames[2]);
+    }
+
 }
