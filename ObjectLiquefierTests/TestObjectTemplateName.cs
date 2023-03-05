@@ -49,7 +49,7 @@ public class TestObjectTemplateName
         Assert.Equal("nested.liquid", templateName.PossibleNames[1]);
     }
     [Fact]
-    public void PossibleNamesConsidersMultipleNestedClassesToo() {
+    public void PossibleNamesConsidersMultipleNestedClasses() {
         var templateName = new ObjectTemplateName(typeof(Nested.Nested2));
         Assert.Equal("testobjecttemplatename.nested.nested2.liquid", templateName.PossibleNames[0]);
         Assert.Equal("nested.nested2.liquid", templateName.PossibleNames[1]);

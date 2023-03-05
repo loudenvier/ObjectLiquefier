@@ -1,7 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using ObjectLiquefier;
-
-public class TestLiquefier {
+﻿public class TestLiquefier {
     public class Person {
         public string Name { get; set; } = "";
         public DateTime Birth { get; set; }
@@ -53,7 +50,7 @@ public class TestLiquefier {
     [Fact]
     public void LiquefyWithoutTemplateThrowsTemplateNotFound() {
         var liquefier = new Liquefier();
-        Assert.Throws<LiquefyTemplateNotFoundException>(() 
+        Assert.Throws<LiquidTemplateNotFoundException>(() 
             => liquefier.Liquefy(Felipe));
     }
     [Fact]
@@ -133,6 +130,55 @@ public class TestLiquefier {
         } finally {
             if (Directory.Exists(liquefier.Settings.TemplateFolder))
                 Directory.Delete(liquefier.Settings.TemplateFolder, true);
+        }
+    }
+
+    public class Nested { 
+        public string? Name { get; set; } 
+        public DateTime Birth { get; set; }
+        public class Person {
+            public string? Name { get; set; }
+            public DateTime Birth { get; set; }
+
+        }
+    }
+
+    [Fact]
+    public void LiquefyCachesTemplateFromDiskForNestedClasses() {
+        var liquefier = new Liquefier();
+        var folder = liquefier.Settings.TemplateFolder;
+        Directory.CreateDirectory(folder);
+        try {
+            File.WriteAllText(Path.Combine(folder, "nested.liquid"), personTemplate);
+            var nested = new Nested { Name = "Felipe", Birth = myBirth };
+            var liquefied = liquefier.Liquefy(nested);
+            Assert.Equal(felipeLiquefied, liquefied);
+            Directory.Delete(folder, true);
+            // since template dir is deleted, the compiled template must come from the cache
+            var liquefiedByCachedTemplate = liquefier.Liquefy(nested);
+            Assert.Equal(liquefied, liquefiedByCachedTemplate);
+        } finally {
+            if (Directory.Exists(folder))
+                Directory.Delete(folder, true);
+        }
+    }
+
+    [Fact]
+    public void LiquefyCachesTemplatesByFullTypeName() {
+        var liquefier = new Liquefier();
+        var folder = liquefier.Settings.TemplateFolder;
+        Directory.CreateDirectory(folder);
+        try {
+            File.WriteAllText(Path.Combine(folder, "person.liquid"), personTemplate);
+            var nested = new Nested.Person { Name = "Felipe", Birth = myBirth };
+            var liquefied = liquefier.Liquefy(nested);
+            Assert.Equal(felipeLiquefied, liquefied);
+            Directory.Delete(folder, true);
+            // since template dir is deleted, the compiled template must come from the cache
+            Assert.Throws<LiquidTemplateNotFoundException>(() => liquefier.Liquefy(Felipe));
+        } finally {
+            if (Directory.Exists(folder))
+                Directory.Delete(folder, true);
         }
     }
 

@@ -20,7 +20,7 @@ namespace ObjectLiquefier
                 if (File.Exists(templateFileName))
                     return templateFileName;
             }
-            throw new LiquefyTemplateNotFoundException(templateName);
+            throw new LiquidTemplateNotFoundException(templateName);
         }
     }
 

@@ -11,14 +11,14 @@ namespace ObjectLiquefier
         protected LiquefyException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 
-    public class LiquefyTemplateNotFoundException : LiquefyException
+    public class LiquidTemplateNotFoundException : LiquefyException
     {
         static string Msg(ObjectTemplateName name) => $"Template not found: {name}";
-        public LiquefyTemplateNotFoundException(ObjectTemplateName name) :
+        public LiquidTemplateNotFoundException(ObjectTemplateName name) :
             base(Msg(name)) {
             TemplateName = name;
         }
-        public LiquefyTemplateNotFoundException(ObjectTemplateName name, Exception innerException) :
+        public LiquidTemplateNotFoundException(ObjectTemplateName name, Exception innerException) :
             base(Msg(name), innerException) {
             TemplateName = name;
         }
