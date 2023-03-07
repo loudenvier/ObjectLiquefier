@@ -9,7 +9,7 @@ The fastest and simplest way to start using the library is from it's [nuget pack
 NuGet\Install-Package ObjectLiquefier
 ```
 
-It targets .NET Standard 2.1 which makes it compatible with all modern (and some legacy) dotnet projects.
+It targets .NET Standard 2.0 which makes it compatible with all modern (and some legacy) dotnet projects.
 
 ## "Strongly"-typed Templates
 
