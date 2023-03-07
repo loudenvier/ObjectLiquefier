@@ -182,6 +182,24 @@
         }
     }
 
+    public class Child : Person { }
+
+    [Fact]
+    public void LiquefyUsesParentTemplateForChildClassWithoutTemplate() {
+        var liquefier = new Liquefier();
+        var folder = liquefier.Settings.TemplateFolder;
+        Directory.CreateDirectory(folder);
+        try {
+            File.WriteAllText(Path.Combine(folder, "person.liquid"), personTemplate);
+            var child = new Child { Name = "Felipe", Birth = myBirth };
+            var liquefied = liquefier.Liquefy(child);
+            Assert.Equal(felipeLiquefied, liquefied);
+        } finally {
+            if (Directory.Exists(folder))
+                Directory.Delete(folder, true);
+        }
+    }
+
     [Fact]
     public void LiquefyObjectUsesDefaultSettings() {
         const string otherFolder = "other_folder";
