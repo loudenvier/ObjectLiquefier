@@ -55,19 +55,36 @@
         }
     }
     [Fact]
-    public void AllResolveTemplateOverloadsAreEquivalent() {
+    public void AllResolveTemplateOverridesAreEquivalent() {
         var resolver = new TemplateResolver(TestTemplateFolder);
-        var name = new ObjectTemplateName(typeof(object));
+        var name = new ObjectTemplateName(typeof(string));
         WriteAllPossibleTemplates(name);
         try {
             var resolved = resolver.ResolveTemplate(name);
             Assert.Equal($"{TestTemplateFolder}\\{name.PossibleNames[0]}", resolved);
-            var resolved2 = resolver.ResolveTemplate<object>();
-            var resolved3 = resolver.ResolveTemplate(typeof(object));
+            var resolved2 = resolver.ResolveTemplate<string>();
+            var resolved3 = resolver.ResolveTemplate(typeof(string));
             Assert.Equal(resolved, resolved2);
             Assert.Equal(resolved2, resolved3);
         } finally {
             DeleteAllPossibleTemplates(name);
         }
+    }
+    public class Parent { }
+    public class Child : Parent { }
+    [Fact]
+    public void ResolveParentTemplateIfNoSuitableTemplateIsFoundForClass() {
+        var resolver = new TemplateResolver(TestTemplateFolder);
+        var name = new ObjectTemplateName(typeof(Child));
+        WriteAllPossibleTemplates(name);
+        foreach(var template in name.PossibleNames.Take(name.PossibleNames.Length - 1)) 
+            File.Delete(GetTemplatePath(template));
+        try {
+            var resolved = resolver.ResolveTemplate(typeof(Child));
+            Assert.Equal("TestTemplateFolder\\parent.liquid", resolved);
+        } finally {
+            DeleteAllPossibleTemplates(name);
+        }
+
     }
 }

@@ -13,27 +13,13 @@ public class TestObjectTemplateName
         Assert.Equal("system.io.path", templateName.TypeName);
     }
     [Fact]
-    public void NamePartsAreFormedFromTheFullNameOfTheType() {
-        var type = typeof(Path);
-        var templateName = new ObjectTemplateName(type);
-        Assert.Equal(3, templateName.NameParts.Length);
-        Assert.Equal("system", templateName.NameParts[0]);
-        Assert.Equal("io", templateName.NameParts[1]);
-        Assert.Equal("path", templateName.NameParts[2]);
-    }
-    [Fact]
     public void PossibleNamesGoesFromMoreQualifiedToSimpleObjectName_IncludingLiquidFileExtension() {
         var type = typeof(Path);
         var templateName = new ObjectTemplateName(type);
         Assert.Equal("system.io.path.liquid", templateName.PossibleNames[0]);
         Assert.Equal("io.path.liquid", templateName.PossibleNames[1]);
         Assert.Equal("path.liquid", templateName.PossibleNames[2]);
-    }
-    [Fact]
-    public void NamePartsAndPossibleNamesAreTheSameLength() {
-        var type = typeof(Path);
-        var templateName = new ObjectTemplateName(type);
-        Assert.Equal(templateName.NameParts.Length, templateName.PossibleNames.Length);
+        Assert.Equal(3, templateName.PossibleNames.Length);
     }
 
     public class Nested
@@ -41,7 +27,6 @@ public class TestObjectTemplateName
         public string? Dummy { get; set; }
         public class Nested2 { }
     }
-
     [Fact]
     public void PossibleNamesConsidersNestedClassesToo() {
         var templateName = new ObjectTemplateName(typeof(Nested));
@@ -56,4 +41,20 @@ public class TestObjectTemplateName
         Assert.Equal("nested2.liquid", templateName.PossibleNames[2]);
     }
 
+    public class Parent { }
+    public class Child : Parent { }
+    public class GrandChild : Child { }
+    [Fact]
+    public void PossibleNamesIncludeTheWholeClassHierarchyExceptForSystemObject() {
+        var templateName = new ObjectTemplateName(typeof(GrandChild));
+        Assert.Equal("testobjecttemplatename.grandchild.liquid", templateName.PossibleNames[0]);
+        Assert.Equal("grandchild.liquid", templateName.PossibleNames[1]);
+        Assert.Equal("testobjecttemplatename.child.liquid", templateName.PossibleNames[2]);
+        Assert.Equal("child.liquid", templateName.PossibleNames[3]);
+        Assert.Equal("testobjecttemplatename.parent.liquid", templateName.PossibleNames[4]);
+        Assert.Equal("parent.liquid", templateName.PossibleNames[5]);
+        Assert.Equal(6, templateName.PossibleNames.Length);
+    }
+
 }
+
