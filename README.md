@@ -6,14 +6,14 @@ A (very) tiny library to help pretty-printing dotnet objects (for logging, audit
 
 The fastest and simplest way to start using the library is from it's [nuget package](https://www.nuget.org/packages/ObjectLiquefier).
 ```powershell
-NuGet\Install-Package ObjectLiquefier -Version 0.0.1
+NuGet\Install-Package ObjectLiquefier
 ```
 
 It targets .NET Standard 2.1 which makes it compatible with all modern (and some legacy) dotnet projects.
 
 ## "Strongly"-typed Templates
 
-The library uses a convention-based template resolution mechanism which automatically resolves templates on disk based on an object's type name. When a suitable template is found it is read from disk, compiled and the compiled template is cached using the object's type name as the cache key.
+The library uses a convention-based template resolution mechanism which automatically resolves templates on disk based on an object's type name and inheritance hierarchy. When a suitable template is found it is read from disk, compiled and the compiled template is cached using the object's type name as the cache key.
 
 The resolution algorithm uses the `Type.FullName` to search for a template on disk. It start's with the most qualified name and descends down to the unqualified name. For example, take a `Person` class declared in the following namespace:
 
@@ -27,9 +27,29 @@ namespace Some.Test
 }
 ```
 
-The `TemplateResolver` will search for a file named `some.test.person.liquid`, then for `test.person.liquid` and, finally, simply for `person.liquid`. Files are searched in the configured `TemplateSettings.TemplateFolder` (which defaults to `"liquefier"`). 
+The `TemplateResolver` will search for a file named `some.test.person.liquid`, then for `test.person.liquid` and, finally, simply for `person.liquid`. Files are searched in the configurable `TemplateSettings.TemplateFolder` (which defaults to `"liquefier"`). 
 
 _Note: the `.liquid` extension is hard-coded and cannot be changed. Templates **MUST** have this extension._
+
+### Template inheritance hierarchy
+
+Template inheritance allows you to provide a single "base template" for a class hierarchy, and avoid the need to create one template for each class in the inheritance tree.  
+
+If no suitable template is found for a given `Type` then the object hierarchy will be traversed backwards, up to the immediate `System.Object` descendant, checking for a suitable template match along the way. Given the following class hierarchy:
+
+```csharp
+namespace Game {
+    public class Vehicle { }
+    public class Car : Vehicle { }
+    public class Truck : Car { }
+}
+```
+
+The template resolution algorithm will search the following templates in this exact precedence order for the `Truck` class :
+
+```csharp
+game.truck.liquid >> truck.liquid >> game.car.liquid >> car.liquid >> game.vehicle.liquid >> vehicle.liquid
+```
 
 ### Type name collisions
 
@@ -52,7 +72,7 @@ namespace Test.Two {
 
 Both classes would share a template named `person.liquid`. If you need different templates for them you should qualify the template name further. For instance, a template named `two.person.liquid` would only satisfy the second `Person` class above.
 
-_NOTE: while the `class` and `record` above could end using the same template, the compiled template will be cached under different keys regardless as it uses the Type's full name as the cache key. This will result in a separate template compilation for each `Type` even though the template file is the same._
+_NOTE: while the `class` and `record` above could end up using the same template, the compiled template will be cached under different keys regardless as it uses the Type's full name as the cache key. This will result in a separate template compilation for each `Type` even though the template file is the same._
 
 ## Usage 
 
