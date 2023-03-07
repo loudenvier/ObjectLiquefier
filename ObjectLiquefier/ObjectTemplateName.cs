@@ -32,7 +32,7 @@ namespace ObjectLiquefier
             .Select(t => {
                 var parts = t.FullName.ToLowerInvariant().Split('.', '+');
                 return parts.Select((_, i) =>
-                    $"{string.Join('.', parts.Skip(i))}{TemplateResolver.DefaultExtension}");
+                    $"{string.Join(".", parts.Skip(i))}{TemplateResolver.DefaultExtension}");
             }).SelectMany(s => s)
             .ToArray();
 
