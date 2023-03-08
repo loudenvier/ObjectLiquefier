@@ -48,10 +48,13 @@
         Assert.Equal(567, liquefier.Settings.TemplateOptions.MaxSteps);
     }
     [Fact]
-    public void LiquefyWithoutTemplateThrowsTemplateNotFound() {
+    public void LiquefyWithoutTemplateReturnsEmptyString() {
         var liquefier = new Liquefier();
-        Assert.Throws<LiquidTemplateNotFoundException>(() 
-            => liquefier.Liquefy(Felipe));
+        Assert.Equal("", liquefier.Liquefy(Felipe));
+    }
+    [Fact]
+    public void TryLiquefyReturnsFalseWithoutTemplate() {
+        Assert.False(new Liquefier().TryLiquefy(Felipe, out _));
     }
     [Fact]
     public void LiquefyCanAcceptAdHocTemplate() {
@@ -175,7 +178,7 @@
             Assert.Equal(felipeLiquefied, liquefied);
             Directory.Delete(folder, true);
             // since template dir is deleted, the compiled template must come from the cache
-            Assert.Throws<LiquidTemplateNotFoundException>(() => liquefier.Liquefy(Felipe));
+            Assert.Equal("", liquefier.Liquefy(Felipe));
         } finally {
             if (Directory.Exists(folder))
                 Directory.Delete(folder, true);
