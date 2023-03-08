@@ -84,7 +84,7 @@ var liquefied = Liquefier.LiquefyObject(Felipe);
 
 ```
 
-This will _liquefy_ the instance of the `Person` class above using a suitable liquid template (or raise a `LiquidTemplateNotFoundException` if none is available). It will cache the compiled template, so subsequent calls with instances of the same class will get an already compiled liquid template from the cache. 
+This will _liquefy_ the instance of the `Person` class above using a suitable liquid template (if none is available it returns an empty string). It will cache the compiled template, so subsequent calls with instances of the same class will get an already compiled liquid template from the cache. 
 
 Liquid templates should be put inside a subfolder, under the current dir, named `liquefier` (can be configured). Considering the template bellow in the file  `.\liquefier\person.liquid`:
 
