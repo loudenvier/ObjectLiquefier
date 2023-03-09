@@ -46,8 +46,8 @@ namespace ObjectLiquefier
         /// <returns> A <see cref="string"/> with the result of applying the found or ad-hoc <paramref name="template"/> to <paramref name="obj"/>,
         /// or an empty string (<see cref="string.Empty"/>) if no template is found.</returns>
         public string Liquefy<T>(T obj, string? template=null) where T : class {
-            var templateKey = template == null ? typeof(T).FullName : GetAdHocTemplateKey(template);
-            var parsedTemplate = FindTemplate<T>(templateKey, template);
+            var templateKey = template == null ? obj.GetType().FullName : GetAdHocTemplateKey(template);
+            var parsedTemplate = FindTemplate(obj.GetType(),templateKey, template);
             if (parsedTemplate is null) return string.Empty;
             var context = new TemplateContext(obj, Settings.TemplateOptions);
             return parsedTemplate.Render(context);
@@ -57,14 +57,17 @@ namespace ObjectLiquefier
 
         public string GetAdHocTemplateKey(string template) => template.SpookyHash128().ToString();
 
-        public IFluidTemplate? FindTemplate<T>(string key, string? template) where T : class {
+        public IFluidTemplate? FindTemplate<T>(string key, string? template) where T : class 
+            => FindTemplate(typeof(T), key, template);
+
+        public IFluidTemplate? FindTemplate(Type type, string key, string? template) {
             // tries to get a parsed template from the cache or parses and caches it from the resolver
             // a run condition may happen but in the worst case the same template gets compiled more than once
             var resolver = new TemplateResolver(Settings.TemplateFolder);
             var parsedTemplate = cache[key];
             if (parsedTemplate == null) {
                 if (template == null) {
-                    if (!resolver.TryResolveTemplate<T>(out var templateFilename))
+                    if (!resolver.TryResolveTemplate(type, out var templateFilename))
                         return null;
                     template = File.ReadAllText(templateFilename);
                 }

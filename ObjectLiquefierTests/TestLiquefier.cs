@@ -84,6 +84,20 @@
         }
     }
     [Fact]
+    public void LiquefyUsesProperTemplateEvenIfReferenceIsToSystemObject() {
+        var liquefier = new Liquefier();
+        Directory.CreateDirectory(liquefier.Settings.TemplateFolder);
+        File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "person.liquid"), personTemplate);
+        try {
+            object obj = Felipe;
+            var liquefied = liquefier.Liquefy(obj);
+            Assert.Equal(felipeLiquefied, liquefied);
+        } finally {
+            Directory.Delete(liquefier.Settings.TemplateFolder, true);
+        }
+    }
+
+    [Fact]
     public void LiquefyPersonAdHocDoesNotOverwriteTemplateOnDisk() {
         var liquefier = new Liquefier();
         Directory.CreateDirectory(liquefier.Settings.TemplateFolder);
