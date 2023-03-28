@@ -1,6 +1,6 @@
 # ObjectLiquefier
 
-A (very) tiny library to help pretty-printing dotnet objects (for logging, auditing, visualization, etc. purposes). It uses Liquid templates powered by the nice [Fluid](https://github.com/sebastienros/fluid) library. 
+A (very) tiny library to help pretty-printing dotnet objects (for logging, auditing, visualization, etc. purposes). It uses Liquid templates powered by the incredible [Fluid](https://github.com/sebastienros/fluid) library. 
 
 ## Installing
 
@@ -135,7 +135,7 @@ Which will output this to the `Console`:
 You can change the library's default settings by assigning a new `Func<LiquefierSettings>` to `Liquefier.DefaultSettings`:
 
 ```csharp
-Liquefier.DefaultSettings = () => new Liquefier.LiquefierSettings {
+Liquefier.DefaultSettings = () => new LiquefierSettings {
     TemplateFolder = "another\\folder",
     // new liquefier instances will use "./another/folder" as the liquid source template directory
 };
