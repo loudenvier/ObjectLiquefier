@@ -1,4 +1,6 @@
-﻿public class TestLiquefier {
+﻿using Fluid.Values;
+
+public class TestLiquefier {
     public class Person {
         public string Name { get; set; } = "";
         public DateTime Birth { get; set; }
@@ -46,6 +48,18 @@
         Assert.Equal("test", liquefier.Settings.TemplateFolder);   
         Assert.False(liquefier.Settings.ParserOptions.AllowFunctions);
         Assert.Equal(567, liquefier.Settings.TemplateOptions.MaxSteps);
+    }
+    [Fact]
+    public void CanConfigureLiquefierSettingsWithNewFilters() {
+        var liquefier = new Liquefier(cfg => {
+            cfg.TemplateOptions.Filters.AddFilter("tagorvalue", (input, args, ctx) => {
+                if (input.IsNil())
+                    return NilValue.Instance;
+                return input;
+            });
+        });
+        var t = liquefier.Liquefy(new { Name = "Felipe" }, "{{ Name | tagorvalue }}");
+        Assert.Equal("Felipe", t);
     }
     [Fact]
     public void LiquefyWithoutTemplateReturnsEmptyString() {
