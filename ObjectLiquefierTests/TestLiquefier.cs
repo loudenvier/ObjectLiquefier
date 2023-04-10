@@ -24,6 +24,7 @@ public class TestLiquefier {
         Birth: 31/03/1976
         """;
 
+
     [Fact]
     public void CanInstantiateWithDefaultConfig() {
         var liquefier = new Liquefier();
@@ -265,5 +266,45 @@ public class TestLiquefier {
         }
     }
 
+    public class Parent : Person {
+        public Child FirstBorn { get; set; } = new();
+    }
+    const string parentTemplate =
+        """
+        Name: {{ Name }}
+        Birth: {{ Birth | date: "%d/%m/%Y" }}
+        FirstBorn:
+        {% liquefy FirstBorn %}
+        """;
+    const string parentLiquefied =
+        """
+        Name: Felipe
+        Birth: 31/03/1976
+        FirstBorn:
+        Name: Bernardo
+        Birth: 10/10/2014
+        """;
+
+    [Fact]
+    public void LiquefyTagWorksByLiquefyingTheReferencedPropertyOrObject() {
+        var liquefier = new Liquefier();
+        Directory.CreateDirectory(liquefier.Settings.TemplateFolder);
+        File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "person.liquid"), personTemplate);
+        File.WriteAllText(Path.Combine(liquefier.Settings.TemplateFolder, "parent.liquid"), parentTemplate);
+        try {
+            var parent = new Parent {
+                Name = "Felipe",
+                Birth = new DateTime(1976, 3, 31),
+                FirstBorn = new Child {
+                    Name = "Bernardo",
+                    Birth = new DateTime(2014, 10, 10)
+                }
+            };
+            var liquefied = liquefier.Liquefy(parent);
+            Assert.Equal(parentLiquefied, liquefied);
+        } finally {
+            Directory.Delete(liquefier.Settings.TemplateFolder, true);
+        }
+    }
 
 }

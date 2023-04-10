@@ -19,6 +19,7 @@ namespace ObjectLiquefier
             Settings = DefaultSettings?.Invoke() ?? new();
             configAction?.Invoke(Settings);
             parser = new(Settings.ParserOptions);
+            parser.RegisterExpressionTag("liquefy", new LiquefyExpressionTag(this).Tag);
         }
 
         public LiquefierSettings Settings { get; }
@@ -46,7 +47,7 @@ namespace ObjectLiquefier
         /// <returns> A <see cref="string"/> with the result of applying the found or ad-hoc <paramref name="template"/> to <paramref name="obj"/>,
         /// or an empty string (<see cref="string.Empty"/>) if no template is found.</returns>
         public string Liquefy<T>(T obj, string? template=null) where T : class {
-            var templateKey = template == null ? obj.GetType().FullName : GetAdHocTemplateKey(template);
+            var templateKey = GetTemplateKey(obj, template);
             var parsedTemplate = FindTemplate(obj.GetType(),templateKey, template);
             if (parsedTemplate is null) return string.Empty;
             var context = new TemplateContext(obj, Settings.TemplateOptions);
@@ -55,6 +56,8 @@ namespace ObjectLiquefier
         public bool TryLiquefy<T>(T obj, out string liquefied, string? template = null) where T : class
             => (liquefied = Liquefy(obj, template)) != string.Empty;
 
+        public string GetTemplateKey(object obj, string? template = null) 
+            => template == null ? obj.GetType().FullName : GetAdHocTemplateKey(template);
         public string GetAdHocTemplateKey(string template) => template.SpookyHash128().ToString();
 
         public IFluidTemplate? FindTemplate<T>(string key, string? template) where T : class 
@@ -75,7 +78,6 @@ namespace ObjectLiquefier
             }
             return parsedTemplate;
         }
-
     }
 
 }
