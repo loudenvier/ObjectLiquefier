@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace ObjectLiquefier
 {
-    public class LiquefyExpressionTag {
-
+    public class LiquefyExpressionTag
+    {
         public LiquefyExpressionTag(Liquefier liquefier) => this.liquefier = liquefier;
 
         readonly Liquefier liquefier;
@@ -25,5 +25,4 @@ namespace ObjectLiquefier
             return Statement.Normal();
         }
     }
-
 }

@@ -198,4 +198,69 @@ Like strongly-typed templates, ad-hoc templates are compiled at first use and th
 
 To generate the 128-bit cache key the library uses Jon Hanna's donet implementation ([Spookily Sharp](https://github.com/JonHanna/SpookilySharp/)) of [Bob Jenkins’ SpookyHash version 2](http://burtleburtle.net/bob/hash/spooky.html). While collisions are _possible_ they are very improbable so the library does nothing at all to prevent it as 1 in 16 quintillion chances is low enough for me.
 
+## Pretty-printing properties _inside_ templates 
+
+The library ships with a `{% liquefy [expression] %}` _expression tag_ which allows you to pretty-print objects from within a liquid template. It will run under the same `FluidParser` and `TemplateContext` instances that the current liquid template is being executed on, and will use all the same caching and template resolution rules for whichever `object` the expression resolves to (if no template is found, it will output the value for the expression using the internals of the `Fluid` library).
+
+For example, given the following class structure:
+
+```
+public class Person {
+    public string Name { get; set; } = "";
+    public DateTime Birth { get; set; }
+}
+
+public class Parent : Person {
+    public Child FirstBorn { get; set; } = new();
+}
+
+public class Child : Person { }
+```
+
+And the following templates:
+
+```
+{template_folfer}\person.liquid
+    """
+    Name: {{ Name }}
+    Birth: {{ Birth | date: "%d/%m/%Y" }}
+    """;
+
+{template_folder}\parent.liquid
+    """
+    Name: {{ Name }}
+    Birth: {{ Birth | date: "%d/%m/%Y" }}
+    FirstBorn:
+    {% liquefy FirstBorn %}
+    """;
+```
+
+Given the following code:
+
+```
+var liquefier = new Liquefier();
+var parent = new Parent {
+    Name = "Felipe",
+    Birth = new DateTime(1976, 3, 31),
+    FirstBorn = new Child {
+        Name = "Bernardo",
+        Birth = new DateTime(2014, 10, 10)
+    }
+};
+var liquefied = liquefier.Liquefy(parent);
+Console.WriteLine(liquefied);
+
+```
+
+We'll get this output in the console:
+
+```
+Name: Felipe
+Birth: 31/03/1976
+FirstBorn:
+Name: Bernardo
+Birth: 10/10/2014
+```
+
+The engine will use the template at `parent.liquid` for the parent object since it is of the `Parent`. Whithin the template, the `liquefy` tag is executed and it's expression resolves to `parent.FirstBorn`, which is of type `Child`. The template resolution will then use the `person.liquid` template, since there's no `child.liquid` template to use and `Person` is an ancestor of `Child` (see [_Template inheritance hierarchy_](#template-inheritance-hierarchy)). 
 
