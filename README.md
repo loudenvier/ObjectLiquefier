@@ -204,7 +204,7 @@ The library ships with a `{% liquefy [expression] %}` _expression tag_ which all
 
 For example, given the following class structure:
 
-```
+```csharp
 public class Person {
     public string Name { get; set; } = "";
     public DateTime Birth { get; set; }
@@ -219,25 +219,24 @@ public class Child : Person { }
 
 And the following templates:
 
-```
-{template_folfer}\person.liquid
-    """
+* _{template_folder}\person.liquid:_
+```csharp
     Name: {{ Name }}
     Birth: {{ Birth | date: "%d/%m/%Y" }}
-    """;
+```
 
-{template_folder}\parent.liquid
-    """
+* _{template_folder}\parent.liquid:_
+
+```csharp
     Name: {{ Name }}
     Birth: {{ Birth | date: "%d/%m/%Y" }}
     FirstBorn:
     {% liquefy FirstBorn %}
-    """;
 ```
 
 Given the following code:
 
-```
+```csharp
 var liquefier = new Liquefier();
 var parent = new Parent {
     Name = "Felipe",
@@ -254,7 +253,7 @@ Console.WriteLine(liquefied);
 
 We'll get this output in the console:
 
-```
+```csharp
 Name: Felipe
 Birth: 31/03/1976
 FirstBorn:
@@ -262,5 +261,5 @@ Name: Bernardo
 Birth: 10/10/2014
 ```
 
-The engine will use the template at `parent.liquid` for the parent object since it is of the `Parent`. Whithin the template, the `liquefy` tag is executed and it's expression resolves to `parent.FirstBorn`, which is of type `Child`. The template resolution will then use the `person.liquid` template, since there's no `child.liquid` template to use and `Person` is an ancestor of `Child` (see [_Template inheritance hierarchy_](#template-inheritance-hierarchy)). 
+The engine will use the template at `parent.liquid` for the parent object since it's an object of type `Parent`. Whithin the template, the `liquefy` tag is executed and it's expression resolves to `parent.FirstBorn`, which is of type `Child`. The template resolution will then use the `person.liquid` template, since there's no `child.liquid` template to use and `Person` is an ancestor of `Child` (see [_Template inheritance hierarchy_](#template-inheritance-hierarchy)). 
 
