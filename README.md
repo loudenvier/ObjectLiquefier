@@ -1,4 +1,6 @@
 # ObjectLiquefier
+ ![](https://img.shields.io/nuget/vpre/ObjectLiquefier) ![](https://img.shields.io/nuget/dt/ObjectLiquefier)
+
 
 A (very) tiny library to help pretty-printing dotnet objects (for logging, auditing, visualization, etc. purposes). It uses Liquid templates powered by the incredible [Fluid](https://github.com/sebastienros/fluid) library. 
 
